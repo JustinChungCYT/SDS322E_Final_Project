@@ -1,0 +1,27 @@
+---
+title: "Graphs"
+author: "Justin"
+date: "2022-10-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+data=as.data.frame(read_excel('northeast.xlsx'))
+data <- data %>% separate(Period, into=c("Year", "Quarter"), sep=4)
+data %>% ggplot(aes(fill=Quarter, x=Year, y=Total)) + geom_bar(position="dodge", stat="identity")
+data %>% ggplot(aes(x = Year, y = Total, group=Quarter, col=Quarter)) + geom_point() + geom_line()
+```
