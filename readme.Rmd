@@ -1,0 +1,2 @@
+This project is based around the predictive analysis of house prices within different regions, year, and income status. The goals of such project is to predict and analyze house 
+prices across the US and predict the future implications of such prices.
