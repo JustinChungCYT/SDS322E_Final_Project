@@ -1,20 +1,34 @@
-# Project Description
+---
+title: "Property Value Analysis"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
 
-This project is based around the predictive analysis of house prices within different regions, year, and income status. 
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50))
+```
 
-# Goals
+## Project Description
+
+This project is based around the exploratory and predictive analysis of house prices within different regions, year, and income status. 
+
+## Goals
 
 The goals of such project is to predict and analyze house prices across the US and predict the future implications of such prices. We also aim to compare house prices
 and tendencies within each region and analyze the relationships between the location preferences. Another goal we can aim to analyze is the relatonship between income,
 year and median house price sold.
 
-# Link to Data
+## Link to Data
 
-https://www.census.gov/construction/nrs/historical_data/index.html in which contains different data sets stored within excel sheets.
+[The housing data collected from US Census](https://www.census.gov/construction/nrs/historical_data/index.html) contains different data sets stored within excel sheets.
 
 Data within these excel sheets have the region of the house sold, the average sale price, median sale price, year (annual and quarterly sales), as well as income
 status and specific number of houses sold within each price category.
 
-# References
+## References
 
 All data is provided by the US census.
