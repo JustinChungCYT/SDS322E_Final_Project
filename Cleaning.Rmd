@@ -1,0 +1,18 @@
+# Import dataset
+```{r}
+library(dplyr)
+
+df <- read.csv("MELBOURNE_HOUSE_PRICES_LESS.csv")
+head(df, 10)
+glimpse(df)
+```
+
+```{r}
+df %>% summarize_all(n_distinct)
+```
+
+```{r}
+df <- df %>% select(-c(Address, Suburb, Method, Postcode)) %>% na.omit(Price)
+head(df, 10)
+```
+
