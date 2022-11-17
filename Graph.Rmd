@@ -23,3 +23,8 @@ data %>% ggplot(aes(fill=Quarter, x=Year, y=Total)) + geom_bar(position="dodge",
 data %>% ggplot(aes(x = Year, y = Total, group=Quarter, col=Quarter)) + geom_point() + geom_line() +
   theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1))
 ```
+
+```{R}
+sdata <- read.csv("MELBOURNE_HOUSE_PRICES_LESS.csv", header = TRUE, sep = ",")
+sdata
+```
