@@ -1,15 +1,12 @@
 ---
 title: "Property Value Analysis"
-output:
-  html_document:
-    toc: true
-    toc_float:
-      collapsed: false
+author: Austin Yeh, Justin Chung, Ethan Chen, Kyle Folker, Joshua Heldt, Taehyun Yun, Jonathan Debella 
+date: "11/17/2022"
+output: rmarkdown::github_document
 ---
 
-```{r global_options, include=FALSE}
-#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50))
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Project Description
@@ -18,17 +15,8 @@ This project is based around the exploratory and predictive analysis of house pr
 
 ## Goals
 
-The goals of such project is to predict and analyze house prices across the US and predict the future implications of such prices. We also aim to compare house prices
-and tendencies within each region and analyze the relationships between the location preferences. Another goal we can aim to analyze is the relatonship between income,
-year and median house price sold.
+The goals of such project is to analyze and predict Melbourne house prices and predict the future implications of such prices. We also aim to compare house prices and tendencies within each region and analyze the relationships between the location preferences. Another goal we can aim to analyze is the relatonship between income, year and median house price sold.
 
 ## Link to Data
 
-[The housing data collected from US Census](https://www.census.gov/construction/nrs/historical_data/index.html) contains different data sets stored within excel sheets.
-
-Data within these excel sheets have the region of the house sold, the average sale price, median sale price, year (annual and quarterly sales), as well as income
-status and specific number of houses sold within each price category.
-
-## References
-
-All data is provided by the US census.
+https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market
