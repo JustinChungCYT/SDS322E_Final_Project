@@ -15,16 +15,36 @@ library(readxl)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+library(ggpubr)
 
-data=as.data.frame(read_excel('northeast.xlsx'))
-data <- data %>% separate(Period, into=c("Year", "Quarter"), sep=4)
-data %>% ggplot(aes(fill=Quarter, x=Year, y=Total)) + geom_bar(position="dodge", stat="identity") +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1))
-data %>% ggplot(aes(x = Year, y = Total, group=Quarter, col=Quarter)) + geom_point() + geom_line() +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1))
 ```
 
 ```{R}
-sdata <- read.csv("MELBOURNE_HOUSE_PRICES_LESS.csv", header = TRUE, sep = ",")
-sdata
+df <- read.csv("melbourne_housing.csv", header = TRUE, sep = ",")
+df <- na.omit(df)
+```
+
+
+
+```{R}
+p1 <- ggplot(df, aes(x=YearBuilt, y=Price))
+p1 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson") + xlim(1830, 2023)
+```
+
+
+```{R}
+p2 <- ggplot(df, aes(x=Landsize, y=Price))
+p2 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=BuildingArea, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=Distance, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
