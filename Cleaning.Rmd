@@ -1,6 +1,7 @@
 # Import dataset
 ```{r}
 library(dplyr)
+library(ggplot2)
 
 df <- read.csv("melbourne_housing.csv")
 head(df, 10)
@@ -12,20 +13,19 @@ df %>% summarize_all(n_distinct)
 ```
 
 ```{r}
-df <- df %>% select(-c(Address, Suburb, Method, Postcode)) %>% na.omit(Price)
+df <- df %>% select(-c(Address, Suburb, Method, Postcode, Bedroom2, SellerG, Propertycount)) %>% na.omit(Price)
 head(df, 10)
 ```
 
-```{R}
-ggplot(df, aes(x=Distance, y=Price)) +
-    geom_point() +
-    geom_smooth(method=lm, se=FALSE)
-
-ggplot(df, aes(x=Propertycount, y=Price)) +
-    geom_point() +
-    geom_smooth(method=lm, se=FALSE)
+```{r}
+df$YearSold <- as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%Y"))
+df$MonthsSince2016 <- (as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%Y"))-2016)*12 + as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%m"))
+df <- df %>% mutate(BuildingAge=YearSold-YearBuilt)
+df <- df %>% filter(BuildingAge >= 0) %>% select(-YearBuilt, -Date)
+df <- df %>% select(Price, Regionname, CouncilArea, MonthsSince2016, BuildingAge, Landsize, BuildingArea, Lattitude, Longtitude, Type, Rooms, Distance, Bathroom, Car)
+df
 ```
-```{R}
-ggplot(df) + geom_bar(aes(x=Regionname, y=Price, fill=Regionname), stat="summary", fun=mean)+coord_flip()
+```{r}
+write.csv(df, "cleaned_df.csv")
 ```
 
