@@ -25,12 +25,10 @@ df <- na.omit(df)
 ```
 
 
-
 ```{R}
 p1 <- ggplot(df, aes(x=YearBuilt, y=Price))
 p1 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson") + xlim(1830, 2023)
 ```
-
 
 ```{R}
 p2 <- ggplot(df, aes(x=Landsize, y=Price))
@@ -47,4 +45,30 @@ p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "
 ```{R}
 p3 <- ggplot(df, aes(x=Distance, y=Price))
 p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+df_Regionname <- df %>% filter(Regionname=="Eastern Victoria" | Regionname=="Northern Metropolitan" | Regionname=="Northern Victoria" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan") 
+p4 <- ggplot(df_Regionname, aes(x=Landsize, y=Price, color=Regionname))
+p4 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + ylim(0, 4500000)
+```
+
+
+```{R}
+p5 <- ggplot(df_Regionname, aes(x=BuildingArea, y=Price))
+p5 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+df_Pvalue <- df %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
+p6 <- ggplot(df_Pvalue, aes(x=Distance, y=Price, color=Regionname))
+p6 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
+```
+**We observe that the Distance from CBD (Commercial Business District) to the property has little-to-none effect on the price of that property in Eastern and Northern Victoria. In general, CBD represent the prosperity of a city, so the price should go up as the property gets closer to the CBD; however, this is not the case in the Victoria district. Might be because the CBD of Victoria sucks.**
+
+```{R}
+p7 <- ggplot(df_Regionname, aes(x=Propertycount, y=Price, color=Regionname))
+p7 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
 ```
