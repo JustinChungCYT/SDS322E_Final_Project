@@ -10,12 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Project Description
-
-This project is based around the exploratory and predictive analysis of house prices within different regions, year, and income status. 
+This project is based around the exploratory and predictive analysis of house prices within in Melbourne, Australia.
 
 ## Goals
-
-The goals of such project is to analyze and predict Melbourne house prices and predict the future implications of such prices. We also aim to compare house prices and tendencies within each region and analyze the relationships between the location preferences. Another goal we can aim to analyze is the relatonship between income, year and median house price sold.
+The goal of this project is to analyze and predict the prices of houses in Melbourne based on multivariate factors. Based on our explorotary analysis of the many variables surrounding housing prices, we will test a model built upon those variables to analyze whether or not they can predict housing prices.
 
 ## Link to Data
 
