@@ -1,0 +1,211 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, echo = TRUE)
+```
+
+```{r, include=F}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(cluster)
+library(reshape2)
+library(GGally)
+library(readxl)
+library(ggpubr)
+```
+
+# Importing Dataset
+
+```{r}
+undf <- read.csv("melbourne_housing.csv")
+df <- read.csv("melbourne_housing.csv")
+head(df, 10)
+```
+
+# Data Cleaning
+
+```{r}
+# Checking variables and their types
+glimpse(df)
+
+# Checking number of distinct values of each variable
+df %>% summarize_all(n_distinct)
+
+# Checking NAs
+df %>% summarize_all(funs(sum(is.na(.))))
+```
+## Dealing with NA's
+
+We first drop the rows with no Years built and no Building Area as that means there isn't a building on the property.
+```{r}
+df <- df %>% filter(!is.na(YearBuilt) & !is.na(BuildingArea))
+df
+```
+We then change the NA's in `Car` as it means there is no car slot for the data.
+```{r}
+df <- df %>% mutate(Car = ifelse(is.na(Car), 0, Car))
+df
+```
+Now we have a dataset with no NA's!
+
+## Dropping useless columns 1
+```{r}
+df <- df %>% select(-c(Address, Suburb, Method, Postcode, Bedroom2, SellerG, Propertycount))
+df
+```
+## Dropping useless columns 2
+```{r}
+df$YearSold <- as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%Y"))
+df$MonthSold <- as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%m"))
+df$MonthsSince2016 <- (df$YearSold-2016)*12 + df$MonthSold
+df <- df %>% mutate(BuildingAge=YearSold-YearBuilt) %>% filter(BuildingAge >= 0)
+df <- df %>% select(Price, Regionname, MonthsSince2016, BuildingAge, Landsize, BuildingArea, Lattitude, Longtitude, Type, Rooms, Distance, Bathroom, Car)
+df
+```
+## Refactoring Features
+```{r}
+df <- df %>% transform(
+  Price=as.double(Price),
+  Regionname=as.factor(Regionname),
+  MonthsSince2016=as.integer(MonthsSince2016),
+  Landsize=as.double(Landsize),
+  Type=as.factor(Type),
+  Car=as.integer(Car)
+)
+
+df
+```
+## Exporting Cleaned Dataset
+```{r}
+write.csv(df, "cleaned_df.csv")
+```
+
+Now we're done cleaning!
+
+# Exploratory Analysis
+
+## Numerical Variables
+
+### Summary and Scale Normalization
+```{r}
+num_df <- df %>% select(where(is.numeric))
+summary(num_df)
+```
+
+### Correlation Matrix
+```{r}
+correlationmatrix_df = round(cor(num_df), 2)
+```
+
+```{r}
+get_lower_tri <- function(correlationmatrix_df) {
+    correlationmatrix_df[upper.tri(correlationmatrix_df)] <- NA
+    return(correlationmatrix_df)
+}
+
+lower_tri = get_lower_tri(correlationmatrix_df)
+lower_tri
+```
+
+```{r}
+meltedcorrelationmatrix_df <- melt(lower_tri, na.rm = TRUE)
+head(meltedcorrelationmatrix_df)
+```
+### Correlation Heat Map
+```{r}
+dfheatmap = ggplot(data = meltedcorrelationmatrix_df,
+    aes(Var2, Var1, fill = value)) + geom_tile(color = "white") +
+    scale_fill_gradient2(low = "blue", high = "red",
+        mid = "white", space = "Lab", name = "Correlation") +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1,
+        size = 9, hjust = 1)) + coord_fixed() + geom_text(aes(Var2,
+    Var1, label = value), color = "black", size = 2)
+
+dfheatmap
+```
+
+
+```{r}
+ggplot(df, aes(x=Longtitude, y=Lattitude, col=Price)) + geom_point()
+```
+
+```{R}
+p2 <- ggplot(df, aes(x=Landsize, y=Price))
+p2 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=BuildingArea, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=Distance, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+undf_Regionname <- undf %>% filter(Regionname=="Eastern Victoria" | Regionname=="Northern Metropolitan" | Regionname=="Northern Victoria" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan") 
+p4 <- ggplot(undf_Regionname, aes(x=Landsize, y=Price, color=Regionname))
+p4 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + ylim(0, 4500000)
+```
+
+
+```{R}
+p5 <- ggplot(undf_Regionname, aes(x=BuildingArea, y=Price))
+p5 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+undf_Pvalue <- undf %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
+p6 <- ggplot(undf_Pvalue, aes(x=Distance, y=Price, color=Regionname))
+p6 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
+```
+**We observe that the Distance from CBD (Commercial Business District) to the property has little-to-none effect on the price of that property in Eastern and Northern Victoria. In general, CBD represent the prosperity of a city, so the price should go up as the property gets closer to the CBD; however, this is not the case in the Victoria district. Might be because the CBD of Victoria sucks.**
+
+```{R}
+p7 <- ggplot(undf_Regionname, aes(x=Propertycount, y=Price, color=Regionname))
+p7 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
+```
+
+
+
+
+
+
+# Hypothesis 1
+The mean prices of properties are different based on number of rooms.
+```{r}
+summary(aov(Price ~ as.factor(Rooms), num_df))
+```
+With a One-Factor ANOVA Test, since the p-value is less than 0.001, we have significant evidence that the group mean price of properties are not the same based on different number of rooms. Therefore, we will include room count in our model as it can significantly impact the property price prediction.
+```{r}
+ggplot(df, aes(x=as.factor(Rooms), y=Price, fill=as.factor(Rooms))) + xlab("Rooms") + ylab("Price") + geom_bar(aes(y=Price), stat="summary", fun=mean) + geom_errorbar(stat="summary", width=0.5)
+```
+
+# Hypothesis 2
+The mean prices of properties are different based on number of rooms.
+```{r}
+summary(aov(Price ~ Regionname, df))
+```
+With a One-Factor ANOVA Test, since the p-value is less than 0.001, we have significant evidence that the group mean price of properties are not the same based on different regions. Therefore, we will include region in our model as it can significantly impact the property price prediction.
+```{r}
+ggplot(df, aes(x=Regionname, y=Price, fill=Regionname)) + xlab("Regionname") + ylab("Price") + geom_bar(aes(y=Price), stat="summary", fun=mean) + geom_errorbar(stat="summary", width=0.5) + theme(axis.text.x = element_text(angle = 45, vjust=1, hjust=1))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
