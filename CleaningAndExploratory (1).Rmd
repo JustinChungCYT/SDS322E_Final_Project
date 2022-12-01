@@ -1,0 +1,203 @@
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(cluster)
+library(reshape2)
+library(GGally)
+library(readxl)
+library(ggpubr)
+
+###Import Data Set
+undf <- read.csv("melbourne_housing.csv")
+df <- read.csv("melbourne_housing.csv")
+head(df, 10)
+glimpse(df)
+
+nrow(df) ### = 13580 Prices of Houses Pre-omitting NA
+ncol(df) ### = Number of Variables before Cleaning
+```
+
+```{r}
+df %>% summarize_all(n_distinct)
+```
+
+```{r}
+
+###Data Cleaning - Removing Nonessential Variables that do not predict price
+
+df <- df %>% select(-c(Address, Suburb, Method, Postcode, Bedroom2, SellerG, Propertycount)) %>% na.omit()
+head(df, 10)
+
+nrow(df) ### = 6830 House Post-omitting NA
+```
+
+```{r}
+
+###Reformatting Variables 
+
+df$YearSold <- as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%Y"))
+df$MonthsSince2016 <- (as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%Y"))-2016)*12 + as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%m"))
+df <- df %>% mutate(BuildingAge=YearSold-YearBuilt)
+df <- df %>% filter(BuildingAge >= 0) %>% select(-YearBuilt, -Date)
+df <- df %>% select(Price,Regionname, CouncilArea, MonthsSince2016, BuildingAge, Landsize, BuildingArea, Lattitude, Longtitude, Type, Rooms, Distance, Bathroom, Car)
+```
+```{r}
+
+###Converting Character Variables Into Integers
+
+RegionName <- as.factor(df$Regionname)
+RegionName <- unclass(RegionName)
+df$Regionname <- RegionName
+
+CouncilArea <- as.factor(df$CouncilArea)
+CouncilArea <- unclass(CouncilArea)
+df$CouncilArea <- CouncilArea
+
+Type <- as.factor(df$Type)
+Type <- unclass(Type)
+df$Type <- Type
+
+```
+
+```{r}
+###Exporting Final Cleaned DataSet
+
+write.csv(df, "final_cleaned_df.csv")
+```
+
+```{r}
+
+###Converting Integers to Numeric
+
+df$Price <- as.numeric(df$Price)
+df$CouncilArea <- as.numeric((df$CouncilArea))
+df$MonthsSince2016 <- as.numeric((df$MonthsSince2016))
+df$Landsize <- as.numeric((df$Landsize))
+df$Type <- as.numeric((df$Type))
+df$Rooms <- as.numeric((df$Rooms))
+df$Bathroom <- as.numeric((df$Bathroom))
+df$Car <- as.numeric((df$Car))
+df$Regionname <- as.numeric((df$Regionname))
+
+###Correlationmatrix
+no_categorical_df <- df %>% select(Price, MonthsSince2016, BuildingAge, Landsize, BuildingArea, Lattitude, Longtitude, Rooms, Distance, Bathroom, Car)
+
+correlationmatrix_df = round(cor(no_categorical_df), 2)
+head(correlationmatrix_df)
+```
+
+```{r}
+get_lower_tri <- function(correlationmatrix_df) {
+    correlationmatrix_df[upper.tri(correlationmatrix_df)] <- NA
+    return(correlationmatrix_df)
+}
+
+lower_tri = get_lower_tri(correlationmatrix_df)
+lower_tri
+```
+
+```{r}
+meltedcorrelationmatrix_df <- melt(lower_tri, na.rm = TRUE)
+head(meltedcorrelationmatrix_df)
+```
+
+```{r}
+
+###Correlation Heat Map
+
+dfheatmap = ggplot(data = meltedcorrelationmatrix_df,
+    aes(Var2, Var1, fill = value)) + geom_tile(color = "white") +
+    scale_fill_gradient2(low = "blue", high = "red",
+        mid = "white", space = "Lab", name = "Correlation") +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1,
+        size = 9, hjust = 1)) + coord_fixed() + geom_text(aes(Var2,
+    Var1, label = value), color = "black", size = 2)
+
+dfheatmap
+```
+
+```{r}
+
+###Clustering
+
+wss <- vector()
+
+for (i in 1:10) {
+    temp <- df %>%
+        kmeans(i)
+    wss[i] <- temp$tot.withinss
+}
+
+ggplot() + geom_point(aes(x = 1:10, y = wss)) + geom_path(aes(x = 1:10,
+    y = wss)) + xlab("clusters") + scale_x_continuous(breaks = 1:10)
+```
+
+```{r}
+kmean = no_categorical_df %>%
+    kmeans(3)
+kmeansclust <- no_categorical_df %>%
+    mutate(cluster = as.factor(kmean$cluster))
+
+df_pam = pam(no_categorical_df, 3)
+head(df_pam)
+```
+
+```{r}
+df_pam$silinfo$avg.width
+```
+
+```{r}
+
+###Can Someone make this look pretty?
+newdf = no_categorical_df %>%
+    mutate(cluster = as.factor(df_pam$clustering))
+
+ggpairs(newdf, aes(color = cluster))
+```
+
+
+```{R}
+p2 <- ggplot(df, aes(x=Landsize, y=Price))
+p2 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=BuildingArea, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+p3 <- ggplot(df, aes(x=Distance, y=Price))
+p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+undf_Regionname <- undf %>% filter(Regionname=="Eastern Victoria" | Regionname=="Northern Metropolitan" | Regionname=="Northern Victoria" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan") 
+p4 <- ggplot(undf_Regionname, aes(x=Landsize, y=Price, color=Regionname))
+p4 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + ylim(0, 4500000)
+```
+
+
+```{R}
+p5 <- ggplot(undf_Regionname, aes(x=BuildingArea, y=Price))
+p5 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+```
+
+
+```{R}
+undf_Pvalue <- undf %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
+p6 <- ggplot(undf_Pvalue, aes(x=Distance, y=Price, color=Regionname))
+p6 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
+```
+**We observe that the Distance from CBD (Commercial Business District) to the property has little-to-none effect on the price of that property in Eastern and Northern Victoria. In general, CBD represent the prosperity of a city, so the price should go up as the property gets closer to the CBD; however, this is not the case in the Victoria district. Might be because the CBD of Victoria sucks.**
+
+```{R}
+p7 <- ggplot(undf_Regionname, aes(x=Propertycount, y=Price, color=Regionname))
+p7 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
+```
+
+swiss = swiss
