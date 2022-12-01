@@ -1,3 +1,11 @@
+---
+title: "hi"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = F, message = F, echo = TRUE)
 ```
@@ -38,19 +46,19 @@ df %>% summarize_all(funs(sum(is.na(.))))
 We first drop the rows with no Years built and no Building Area as that means there isn't a building on the property.
 ```{r}
 df <- df %>% filter(!is.na(YearBuilt) & !is.na(BuildingArea))
-df
+head(df, 10)
 ```
 We then change the NA's in `Car` as it means there is no car slot for the data.
 ```{r}
 df <- df %>% mutate(Car = ifelse(is.na(Car), 0, Car))
-df
+head(df, 10)
 ```
 Now we have a dataset with no NA's!
 
 ## Dropping useless columns 1
 ```{r}
 df <- df %>% select(-c(Address, Suburb, Method, Postcode, Bedroom2, SellerG, Propertycount))
-df
+head(df, 10)
 ```
 ## Dropping useless columns 2
 ```{r}
@@ -59,7 +67,7 @@ df$MonthSold <- as.numeric(format(as.Date(df$Date, format="%d/%m/%Y"),"%m"))
 df$MonthsSince2016 <- (df$YearSold-2016)*12 + df$MonthSold
 df <- df %>% mutate(BuildingAge=YearSold-YearBuilt) %>% filter(BuildingAge >= 0)
 df <- df %>% select(Price, Regionname, MonthsSince2016, BuildingAge, Landsize, BuildingArea, Lattitude, Longtitude, Type, Rooms, Distance, Bathroom, Car)
-df
+head(df, 10)
 ```
 ## Refactoring Features
 ```{r}
@@ -72,7 +80,7 @@ df <- df %>% transform(
   Car=as.integer(Car)
 )
 
-df
+head(df, 10)
 ```
 ## Exporting Cleaned Dataset
 ```{r}
@@ -94,8 +102,11 @@ summary(num_df)
 ### Correlation Matrix
 ```{r}
 correlationmatrix_df = round(cor(num_df), 2)
+correlationmatrix_df
 ```
 
+
+### Correlation Heat Map
 ```{r}
 get_lower_tri <- function(correlationmatrix_df) {
     correlationmatrix_df[upper.tri(correlationmatrix_df)] <- NA
@@ -103,15 +114,8 @@ get_lower_tri <- function(correlationmatrix_df) {
 }
 
 lower_tri = get_lower_tri(correlationmatrix_df)
-lower_tri
-```
 
-```{r}
 meltedcorrelationmatrix_df <- melt(lower_tri, na.rm = TRUE)
-head(meltedcorrelationmatrix_df)
-```
-### Correlation Heat Map
-```{r}
 dfheatmap = ggplot(data = meltedcorrelationmatrix_df,
     aes(Var2, Var1, fill = value)) + geom_tile(color = "white") +
     scale_fill_gradient2(low = "blue", high = "red",
@@ -197,8 +201,21 @@ ggplot(df, aes(x=Regionname, y=Price, fill=Regionname)) + xlab("Regionname") + y
 ```
 
 
+# Hypothesis 3
+The Price data is normally distributed.
+```{r}
+hist(df$Price)
+qqnorm(df$Price); qqline(df$Price)
+```
 
+It's not normally distributed. We have to log-transform it.
 
+```{r}
+logPrice <- log(df$Price)
+hist(logPrice)
+qqnorm(logPrice); qqline(logPrice)
+```
+After applying log transformation to the Price data, we are ready to put it into our model for prediction.
 
 
 
