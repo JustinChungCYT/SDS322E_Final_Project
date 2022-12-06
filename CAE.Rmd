@@ -137,33 +137,33 @@ dfheatmap
 ```{r}
 ggplot(df, aes(x=Longtitude, y=Lattitude, col=Price)) + geom_point(size=0.5)
 ```
-### 
+### Landsize
 ```{R}
 p2 <- ggplot(df, aes(x=Landsize, y=Price))
 p2 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
 
-
+### Building Area
 ```{R}
 p3 <- ggplot(df, aes(x=BuildingArea, y=Price))
 p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
 
-
+### Distance
 ```{R}
 p3 <- ggplot(df, aes(x=Distance, y=Price))
 p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
-
-```{R}
-p5 <- ggplot(df, aes(x=BuildingArea, y=Price))
-p5 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
+### BuildingArea by Regionname
+```{R, fig.height=10, fig.width=7}
+p5 <- ggplot(df %>% filter(Regionname %in% c("Eastern Metropolitan", "Northern Metropolitan", "South-Eastern Metropolitan", "Southern Metropolitan", "Western Metropolitan")), aes(x=BuildingArea, y=Price, col=Regionname))
+p5 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname))
 ```
 
-
-```{R}
-df_Pvalue <- df %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
-p6 <- ggplot(df_Pvalue, aes(x=Distance, y=Price, color=Regionname))
+### Distance by Regionname
+```{R, fig.height=8, fig.width=7}
+df_Regionname <- df %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
+p6 <- ggplot(df_Regionname, aes(x=Distance, y=Price, color=Regionname))
 p6 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
 ```
 
