@@ -1,0 +1,125 @@
+/* General Setup */
+* {
+  box-sizing: border-box;
+}
+  
+body {
+  margin: 0 auto;
+  min-width: 1000px;
+  max-width: 1400px;
+}
+
+/* Layout */
+header, section, nav {
+    padding: 20px;
+}
+
+h1 { 
+    font-size: 50px;
+    font-family: Verdana;
+    text-align: center;
+    color: #250247;
+}
+
+h2 {
+    font-family: josefin_slabbold, sans-serif;
+    letter-spacing: 2px;
+    padding-left: 10%;
+}
+
+p {
+    line-height: 1.5;
+    font-size: 20px;
+    padding-left: 15%;
+}
+
+#subtitle {
+    font-size: 30px;
+    color: #360369;
+}
+
+#sources {
+    padding-left: 15%;
+    width: 150%;
+}
+
+nav {
+    float: left;
+    width: 20%;
+}
+
+header {
+    border-top: 5px solid #250247;
+    border-bottom: 5px solid #250247;
+}
+
+section {
+    padding: 20px;
+    float: left;
+    width: 50%;
+}
+
+li {
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    word-spacing: 3px;
+}
+
+/* Link styling */
+a {
+    outline: none;
+  }
+  
+  a[href*="http"] {
+    padding-right: 15px;
+    background: url(external-link-52.png) no-repeat 100% 0;
+    background-size: 16px 16px;
+  }
+  
+  a:link, a:visited {
+    color: #6C0CCD;
+  }
+  
+  a:focus, a:hover {
+    text-decoration: none;
+  }
+  
+  a:active {
+    color: transparent;
+    text-shadow: 0px 0px 1px #BF84F9,
+                 0px 0px 2px #BF84F9,
+                 0px 0px 3px black,
+                 0px 0px 4px black;
+  }
+
+/* nav menu */
+nav ul {
+    padding-left: 0;
+    margin-top: 0.8rem;
+  }
+  
+  nav li {
+    list-style-type: none;
+    margin-bottom: 2rem;
+  }
+  
+  nav li a {
+    text-decoration: none;
+    display: inline-block;
+    width: 150%;
+    line-height: 3;
+    text-align: center;
+    font-size: 1.5rem;
+    border: 1px solid #240246;
+  }
+  
+  nav li a:focus, nav li a:hover {
+    color: white;
+    background: #BF84F9;
+  }
+  
+  nav li a:active {
+    color: white;
+    background: #6C0CCD;
+  }
