@@ -1,5 +1,5 @@
 ---
-title: "hi"
+title: "Predicting Property Value"
 output:
   html_document:
     toc: true
@@ -24,7 +24,6 @@ library(ggpubr)
 # Importing Dataset
 
 ```{r}
-undf <- read.csv("melbourne_housing.csv")
 df <- read.csv("melbourne_housing.csv")
 head(df, 10)
 ```
@@ -82,9 +81,16 @@ df <- df %>% transform(
 
 head(df, 10)
 ```
+
+## Dropping Unusual Data
+```{r}
+df <- df %>% filter(BuildingArea < 1250)
+df <- df %>% filter(Price < 5000000)
+```
+
 ## Exporting Cleaned Dataset
 ```{r}
-write.csv(df, "cleaned_df.csv")
+write.csv(df, "cleaned_df.csv", row.names = F)
 ```
 
 Now we're done cleaning!
@@ -127,11 +133,11 @@ dfheatmap = ggplot(data = meltedcorrelationmatrix_df,
 dfheatmap
 ```
 
-
+### Price by Map
 ```{r}
-ggplot(df, aes(x=Longtitude, y=Lattitude, col=Price)) + geom_point()
+ggplot(df, aes(x=Longtitude, y=Lattitude, col=Price)) + geom_point(size=0.5)
 ```
-
+### 
 ```{R}
 p2 <- ggplot(df, aes(x=Landsize, y=Price))
 p2 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
@@ -149,36 +155,17 @@ p3 <- ggplot(df, aes(x=Distance, y=Price))
 p3 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
 
-
 ```{R}
-undf_Regionname <- undf %>% filter(Regionname=="Eastern Victoria" | Regionname=="Northern Metropolitan" | Regionname=="Northern Victoria" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan") 
-p4 <- ggplot(undf_Regionname, aes(x=Landsize, y=Price, color=Regionname))
-p4 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + ylim(0, 4500000)
-```
-
-
-```{R}
-p5 <- ggplot(undf_Regionname, aes(x=BuildingArea, y=Price))
+p5 <- ggplot(df, aes(x=BuildingArea, y=Price))
 p5 + geom_point(aes(color=Price)) + geom_smooth(method=lm) + stat_cor(method = "pearson")
 ```
 
 
 ```{R}
-undf_Pvalue <- undf %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
-p6 <- ggplot(undf_Pvalue, aes(x=Distance, y=Price, color=Regionname))
+df_Pvalue <- df %>% filter(Regionname=="Eastern Metropolitan" | Regionname=="Northern Metropolitan" | Regionname=="South-Eastern Metropolitan" | Regionname=="Western Metropolitan" | Regionname=="Eastern Victoria" | Regionname=="Northern Victoria") 
+p6 <- ggplot(df_Pvalue, aes(x=Distance, y=Price, color=Regionname))
 p6 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
 ```
-**We observe that the Distance from CBD (Commercial Business District) to the property has little-to-none effect on the price of that property in Eastern and Northern Victoria. In general, CBD represent the prosperity of a city, so the price should go up as the property gets closer to the CBD; however, this is not the case in the Victoria district. Might be because the CBD of Victoria sucks.**
-
-```{R}
-p7 <- ggplot(undf_Regionname, aes(x=Propertycount, y=Price, color=Regionname))
-p7 + geom_point() + geom_smooth(method=lm) + stat_cor(method = "pearson") + facet_grid(rows=vars(Regionname)) + scale_y_continuous(limits = c(0, 2500000))
-```
-
-
-
-
-
 
 # Hypothesis 1
 The mean prices of properties are different based on number of rooms.
@@ -214,15 +201,9 @@ It's not normally distributed. We have to log-transform it.
 logPrice <- log(df$Price)
 hist(logPrice)
 qqnorm(logPrice); qqline(logPrice)
+df$logPrice <- logPrice
 ```
 After applying log transformation to the Price data, we are ready to put it into our model for prediction.
-
-
-
-
-
-
-
 
 
 
